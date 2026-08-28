@@ -15,17 +15,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://seth-natal-chart-atlas.seth86.chatgpt.site'),
   title: 'Seth / Natal Chart Atlas',
-  description: 'A corrected, visual interpretation of Seth Halpern\'s natal chart.',
+  description: 'An interactive portrait of Seth Halpern through his natal chart.',
   openGraph: {
     title: 'Seth / Natal Chart Atlas',
-    description: 'Relationship as catalyst.',
+    description: 'Precision on the surface. Movement underneath.',
     type: 'website',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Seth / Natal Chart Atlas',
-    description: 'Relationship as catalyst.',
+    description: 'Precision on the surface. Movement underneath.',
     images: ['/og.png'],
   },
 };

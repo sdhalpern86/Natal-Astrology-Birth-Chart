@@ -21,23 +21,6 @@ const placements = [
   ['♇', 'Pluto', '05° Scorpio', '3rd'],
 ];
 
-const kept = [
-  'Venus in Libra: fairness, taste, relational intelligence',
-  'Moon in Gemini: mental movement and conversation',
-  'Mars in Capricorn: deliberate desire and follow-through',
-  'Pisces Descendant: idealization needs a reality check',
-  'Gemini Midheaven: communication and adaptive work',
-];
-
-const discarded = [
-  '“Triple Virgo”',
-  'Sun in the 12th house',
-  'Mercury in Virgo',
-  'Saturn in Pisces',
-  'Venus in Leo',
-  'Literal karma, past-life, or quantum claims',
-];
-
 export default function Home() {
   const [focus, setFocus] = useState('jupiter');
 
@@ -48,16 +31,16 @@ export default function Home() {
         <nav aria-label="Page sections">
           <a href="#love">Love</a>
           <a href="#work">Work</a>
-          <a href="#audit">Audit</a>
+          <a href="#self">Self</a>
         </nav>
-        <p>Corrected chart · Whole Sign houses</p>
+        <p>A natal portrait · Whole Sign houses</p>
       </header>
 
       <section id="top" className="hero">
         <div className="hero-copy">
           <p className="eyebrow">28 AUG 1986 · 07:45 EDT · BINGHAMTON</p>
-          <h1>Your chart is built around <span>relationship as catalyst.</span></h1>
-          <p className="lede">Not a search for someone sufficiently “soulful.” A lifelong practice of keeping freedom, candor, and movement alive inside commitment.</p>
+          <h1>Precision on the surface. <span>Movement underneath.</span></h1>
+          <p className="lede">Seth’s chart describes a discerning, self-directed person with a private creative mind, a public need for variety, and relationships that magnify everything.</p>
         </div>
 
         <div className="chart-stage" aria-label="The chart's central mutable T-square">
@@ -99,7 +82,7 @@ export default function Home() {
       <section className="placements" aria-labelledby="placements-heading">
         <div className="section-index">
           <span>01</span>
-          <p id="placements-heading">Corrected placements</p>
+          <p id="placements-heading">Natal placements</p>
         </div>
         <div className="placement-grid">
           {placements.map(([glyph, name, sign, house]) => (
@@ -199,25 +182,38 @@ export default function Home() {
         <p>Sun trine Neptune and sextile Pluto add imagination and depth. The gift is turning subtle, chaotic material into something useful.</p>
       </section>
 
-      <section id="audit" className="audit-section">
+      <section id="self" className="portrait-section">
         <div className="section-index">
           <span>04</span>
-          <p>Prior reading audit</p>
+          <p>Integrated portrait</p>
         </div>
-        <div className="audit-heading">
-          <h2>Keep the pattern recognition. <span>Discard the bad coordinates.</span></h2>
-          <p>The earlier document mixed house systems and contradicted itself. These are the claims worth retaining and the ones that should not shape your interpretation.</p>
+        <div className="portrait-heading">
+          <h2>Competent exterior. <span>Private fire.</span></h2>
+          <p>The chart becomes most useful when its individual placements resolve into one person rather than a list of traits.</p>
         </div>
-        <div className="audit-grid">
-          <div>
-            <h3>KEEP</h3>
-            {kept.map((item) => <p key={item}><span>✓</span>{item}</p>)}
-          </div>
-          <div>
-            <h3>DISCARD</h3>
-            {discarded.map((item) => <p key={item}><span>×</span>{item}</p>)}
-          </div>
+        <div className="portrait-grid">
+          <article>
+            <span>WHAT PEOPLE MEET</span>
+            <h3>Discernment in motion.</h3>
+            <p>Virgo rising with the Sun in the 1st presents as observant, capable, and improvement-oriented. Seth tends to enter a situation by understanding it, locating the friction, and making it work better.</p>
+          </article>
+          <article>
+            <span>WHAT STAYS PRIVATE</span>
+            <h3>A stronger point of view than first appears.</h3>
+            <p>Mercury in Leo in the 12th develops ideas away from the room. Expression becomes bold once the thinking is ready, but the creative process itself needs privacy and control over timing.</p>
+          </article>
+          <article>
+            <span>WHAT CREATES ENERGY</span>
+            <h3>Novelty inside a durable structure.</h3>
+            <p>The Gemini Moon and Uranian tension need variety, discovery, and independent people. Venus in Libra and Mars in Capricorn still want quality, consistency, and something worth building.</p>
+          </article>
+          <article>
+            <span>WHAT MAKES HIM EFFECTIVE</span>
+            <h3>Making complexity usable.</h3>
+            <p>Sun trine Neptune and sextile Pluto combine sensitivity with depth. The signature is strongest when intuitive pattern recognition becomes a clear decision, system, story, or strategy.</p>
+          </article>
         </div>
+        <p className="portrait-close">At his best, Seth is precise without becoming rigid, intense without becoming controlling, and relational without losing his independent center.</p>
       </section>
 
       <footer>
