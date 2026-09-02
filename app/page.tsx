@@ -1,224 +1,368 @@
 'use client';
 
-import { useState } from 'react';
+import { type CSSProperties, useEffect, useState } from 'react';
+import {
+  areaOrder,
+  chartAreas,
+  placements,
+  type AreaKey,
+  type ChartArea,
+} from './chart-data';
 
-const axes = [
-  { glyph: '☽', name: 'Moon', detail: '17° Gemini · 10H', className: 'moon' },
-  { glyph: '♃', name: 'Jupiter', detail: '19° Pisces · 7H', className: 'jupiter' },
-  { glyph: '♅', name: 'Uranus', detail: '18° Sagittarius · 4H', className: 'uranus' },
-];
+const nodePositions = [
+  { x: 18, y: 50 },
+  { x: 72, y: 18 },
+  { x: 82, y: 70 },
+  { x: 46, y: 84 },
+] as const;
 
-const placements = [
-  ['☉', 'Sun', '04° Virgo', '1st'],
-  ['☽', 'Moon', '17° Gemini', '10th'],
-  ['☿', 'Mercury', '26° Leo', '12th'],
-  ['♀', 'Venus', '20° Libra', '2nd'],
-  ['♂', 'Mars', '13° Capricorn', '5th'],
-  ['♃', 'Jupiter', '19° Pisces', '7th'],
-  ['♄', 'Saturn', '03° Sagittarius', '4th'],
-  ['♅', 'Uranus', '18° Sagittarius', '4th'],
-  ['♆', 'Neptune', '03° Capricorn', '5th'],
-  ['♇', 'Pluto', '05° Scorpio', '3rd'],
-];
+function isAreaKey(value: string): value is AreaKey {
+  return areaOrder.includes(value as AreaKey);
+}
 
-export default function Home() {
-  const [focus, setFocus] = useState('jupiter');
+function areaFromHash(): AreaKey | null {
+  if (typeof window === 'undefined') return null;
+  const value = window.location.hash.replace('#area/', '');
+  return isAreaKey(value) ? value : null;
+}
 
+function SiteHeader({ activeArea }: { activeArea: ChartArea | null }) {
   return (
-    <main>
-      <header className="site-header">
-        <a href="#top" className="wordmark">SETH / NATAL</a>
-        <nav aria-label="Page sections">
-          <a href="#love">Love</a>
-          <a href="#work">Work</a>
-          <a href="#self">Self</a>
-        </nav>
-        <p>A natal portrait · Whole Sign houses</p>
-      </header>
+    <header className="site-header">
+      <a href="#top" className="wordmark" aria-label="Natal Atlas home">
+        NATAL <i>ATLAS</i>
+      </a>
+      <nav className="primary-nav" aria-label="Explore chart areas">
+        {areaOrder.map((key) => {
+          const area = chartAreas[key];
+          return (
+            <a
+              key={key}
+              href={`#area/${key}`}
+              aria-current={activeArea?.key === key ? 'page' : undefined}
+            >
+              {area.name}
+            </a>
+          );
+        })}
+      </nav>
+      <p>{activeArea ? `${activeArea.number} / 06` : 'Whole Sign houses'}</p>
+    </header>
+  );
+}
 
-      <section id="top" className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">28 AUG 1986 · 07:45 EDT · BINGHAMTON</p>
-          <h1>Precision on the surface. <span>Movement underneath.</span></h1>
-          <p className="lede">Seth’s chart describes a discerning, self-directed person with a private creative mind, a public need for variety, and relationships that magnify everything.</p>
+function HomeAtlas() {
+  return (
+    <>
+      <section id="top" className="atlas-home">
+        <div className="atlas-intro">
+          <p className="eyebrow">SETH HALPERN · NATAL CHART · 28 AUG 1986</p>
+          <h1>A chart to explore, <span>not finish.</span></h1>
+          <p className="lede">
+            Start with the whole pattern. Enter any area for the placements, tensions,
+            and practical interpretation beneath it.
+          </p>
+          <div className="birth-data" aria-label="Birth chart details">
+            <span>07:45 EDT</span>
+            <span>Binghamton, New York</span>
+            <span>Virgo rising</span>
+          </div>
         </div>
 
-        <div className="chart-stage" aria-label="The chart's central mutable T-square">
-          <div className="orbit orbit-outer" />
-          <div className="orbit orbit-inner" />
-          <div className="crosshair crosshair-x" />
-          <div className="crosshair crosshair-y" />
-          <div className="core">
-            <b>19°</b>
-            <span>VIRGO ASC</span>
+        <div className="atlas-map" aria-label="Six areas of the natal chart">
+          <div className="atlas-orbit atlas-orbit-outer" />
+          <div className="atlas-orbit atlas-orbit-inner" />
+          <svg className="atlas-links" viewBox="0 0 100 100" aria-hidden="true">
+            <line x1="50" y1="50" x2="50" y2="5" />
+            <line x1="50" y1="50" x2="90" y2="28" />
+            <line x1="50" y1="50" x2="90" y2="72" />
+            <line x1="50" y1="50" x2="50" y2="95" />
+            <line x1="50" y1="50" x2="10" y2="72" />
+            <line x1="50" y1="50" x2="10" y2="28" />
+          </svg>
+          <div className="atlas-core">
+            <strong>19°37′</strong>
+            <span>Virgo Ascendant</span>
           </div>
-          {axes.map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              className={`planet ${item.className} ${focus === item.className ? 'active' : ''}`}
-              onClick={() => setFocus(item.className)}
-              aria-pressed={focus === item.className}
-            >
-              <span>{item.glyph}</span>
-              <b>{item.name}</b>
-              <small>{item.detail}</small>
-            </button>
-          ))}
-          <p className={`signal signal-${focus}`}>
-            {focus === 'jupiter' && 'PARTNERSHIP MAGNIFIES EVERYTHING'}
-            {focus === 'moon' && 'THE MIND NEEDS MOVEMENT'}
-            {focus === 'uranus' && 'HOME MUST LEAVE ROOM FOR FREEDOM'}
-          </p>
+          {areaOrder.map((key, index) => {
+            const area = chartAreas[key];
+            return (
+              <a
+                key={key}
+                href={`#area/${key}`}
+                className={`atlas-portal portal-${index + 1} tone-${area.tone}`}
+              >
+                <span>{area.number}</span>
+                <strong>{area.name}</strong>
+                <small>{area.homeNote}</small>
+              </a>
+            );
+          })}
         </div>
       </section>
 
-      <section className="thesis-strip">
+      <section className="atlas-thesis" aria-label="Central chart tensions">
         <p><span>Expansion</span> without inflation</p>
         <p><span>Harmony</span> without avoidance</p>
         <p><span>Stability</span> without stagnation</p>
       </section>
 
-      <section className="placements" aria-labelledby="placements-heading">
-        <div className="section-index">
-          <span>01</span>
-          <p id="placements-heading">Natal placements</p>
+      <section id="placements" className="placement-section">
+        <div className="section-heading">
+          <span>Chart at a glance</span>
+          <h2>Ten placements. Six ways in.</h2>
+          <p>The home view stays concise. Each atlas area opens a full reading with interactive chart evidence.</p>
         </div>
         <div className="placement-grid">
           {placements.map(([glyph, name, sign, house]) => (
             <div className="placement" key={name}>
               <span className="placement-glyph">{glyph}</span>
-              <div><b>{name}</b><small>{sign}</small></div>
+              <div>
+                <b>{name}</b>
+                <small>{sign}</small>
+              </div>
               <em>{house}</em>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="love" className="story-section">
-        <div className="section-index">
-          <span>02</span>
-          <p>Relationship architecture</p>
-        </div>
-        <div className="story-heading">
-          <p className="eyebrow">THE DOMINANT SIGNAL</p>
-          <h2>Partnership is an amplifier, <span>not a destination.</span></h2>
-        </div>
-        <div className="exact-aspect">
-          <div className="exact-value"><strong>0°01′</strong><span>Jupiter opposite Ascendant</span></div>
-          <p>Jupiter is virtually exact on your Pisces Descendant, the partnership point. Partners can enlarge opportunity, meaning, imagination, and confidence. They can also enlarge projection, overpromising, and misplaced faith.</p>
-        </div>
-        <div className="love-grid">
-          <article>
-            <p className="eyebrow">WHAT COMES EASILY</p>
-            <h3>Grace, attraction, equilibrium.</h3>
-            <p>Venus in Libra in the 2nd house makes partnership, beauty, diplomacy, and mutual benefit instinctive. Moon trine Venus adds social warmth and emotional readability.</p>
-            <p className="risk"><span>Risk</span> Preserving a beautiful arrangement after it stops being honest.</p>
-          </article>
-          <article>
-            <p className="eyebrow">WHAT KEEPS IT ALIVE</p>
-            <h3>Space, surprise, intellectual motion.</h3>
-            <p>Moon opposite Uranus needs novelty and autonomy. Venus sextile Uranus is attracted to originality. A secure bond must still leave both people independently interesting.</p>
-            <p className="risk"><span>Risk</span> Mistaking intensity or sudden change for proof of incompatibility.</p>
-          </article>
-          <article>
-            <p className="eyebrow">HOW DESIRE MOVES</p>
-            <h3>Slow build, real investment.</h3>
-            <p>Mars exalted in Capricorn in the 5th pursues romance with intent. Competence, consistency, ambition, and demonstrated effort are more compelling than performance alone.</p>
-            <p className="risk"><span>Risk</span> Managing romance like a project or making affection feel earned.</p>
-          </article>
-        </div>
-        <blockquote>“Do not confuse a beautifully balanced arrangement with genuine intimacy.”</blockquote>
-      </section>
-
-      <section className="growth-section">
-        <div className="growth-axis">
-          <div>
-            <span>FAMILIAR</span>
-            <b>Venus + South Node</b>
-            <p>Libra · 2nd house</p>
-          </div>
-          <div className="axis-line"><i /></div>
-          <div>
-            <span>GROWTH</span>
-            <b>North Node</b>
-            <p>Aries · 8th house</p>
-          </div>
-        </div>
-        <p className="growth-copy">You already know how to accommodate. Growth comes from revealing the potentially disruptive truth, especially around desire, trust, money, power, and dependency.</p>
-      </section>
-
-      <section id="work" className="story-section work-section">
-        <div className="section-index">
-          <span>03</span>
-          <p>Public work, private mind</p>
-        </div>
-        <div className="work-layout">
-          <div className="career-number">
-            <strong>0°37′</strong>
-            <p>Moon conjunct Midheaven</p>
-          </div>
-          <div className="career-copy">
-            <h2>Your career must <span>move with your mind.</span></h2>
-            <p>The Gemini Moon sits almost exactly on the Midheaven, the public and vocational point. Communication, teaching, interpretation, strategy, media, synthesis, and multi-domain work are the clearest through-line.</p>
-            <p>Moon opposite Uranus makes pivots structural. A changing career is not evidence that the previous path was wrong. The container must keep evolving with your curiosity.</p>
-          </div>
-        </div>
-        <div className="call-graph" aria-label="Career interpretation flow">
-          <div><span>INPUT</span><b>Complexity</b></div>
-          <i>→</i>
-          <div><span>PRIVATE ENGINE</span><b>Mercury in Leo · 12H</b></div>
-          <i>→</i>
-          <div><span>PUBLIC OUTPUT</span><b>Clarity with conviction</b></div>
-        </div>
-      </section>
-
-      <section className="pressure-section">
+      <section id="method" className="method-section">
         <div>
-          <p className="eyebrow">THE INNER PRESSURE</p>
-          <h2>Sun square Saturn</h2>
+          <span className="eyebrow">HOW TO USE THE ATLAS</span>
+          <h2>One chart. Multiple valid scales.</h2>
         </div>
-        <p>An internal authority keeps asking whether you have done enough or earned the right to take up space. The useful form is rigor. The costly form is self-surveillance.</p>
-        <p>Sun trine Neptune and sextile Pluto add imagination and depth. The gift is turning subtle, chaotic material into something useful.</p>
+        <div className="method-steps">
+          <article><b>01</b><h3>Begin with an area</h3><p>Choose the life question that matters now, rather than reading every placement in order.</p></article>
+          <article><b>02</b><h3>Inspect the evidence</h3><p>Select any node in the inline map to see the exact placement or aspect behind the interpretation.</p></article>
+          <article><b>03</b><h3>Look for integration</h3><p>Each reading separates the core pattern, the friction, and the behavior that helps both sides work together.</p></article>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function SignalMap({ area }: { area: ChartArea }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedSignal = area.signals[selectedIndex];
+
+  return (
+    <div className="signal-explorer">
+      <div className="signal-map" aria-label={`Interactive chart evidence for ${area.name}`}>
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          {nodePositions.slice(1, area.signals.length).map((position, index) => (
+            <line
+              key={`${position.x}-${position.y}`}
+              x1={nodePositions[0].x}
+              y1={nodePositions[0].y}
+              x2={position.x}
+              y2={position.y}
+              className={selectedIndex === 0 || selectedIndex === index + 1 ? 'selected' : ''}
+            />
+          ))}
+          {area.signals.length === 4 && (
+            <>
+              <line x1={nodePositions[1].x} y1={nodePositions[1].y} x2={nodePositions[2].x} y2={nodePositions[2].y} />
+              <line x1={nodePositions[2].x} y1={nodePositions[2].y} x2={nodePositions[3].x} y2={nodePositions[3].y} />
+            </>
+          )}
+        </svg>
+        <div className="map-center"><span>{area.number}</span><b>{area.name}</b></div>
+        {area.signals.map((signal, index) => {
+          const position = nodePositions[index];
+          const style = {
+            '--node-x': position.x,
+            '--node-y': position.y,
+          } as CSSProperties;
+          return (
+            <button
+              type="button"
+              key={signal.label}
+              className={`signal-node ${selectedIndex === index ? 'active' : ''}`}
+              style={style}
+              onClick={() => setSelectedIndex(index)}
+              aria-pressed={selectedIndex === index}
+            >
+              <span>{signal.glyph}</span>
+              <b>{signal.label}</b>
+            </button>
+          );
+        })}
+      </div>
+      <div className="signal-inspector" aria-live="polite">
+        <span className="eyebrow">SELECTED EVIDENCE</span>
+        <div className="inspector-title">
+          <strong>{selectedSignal.glyph}</strong>
+          <div><h3>{selectedSignal.label}</h3><p>{selectedSignal.placement}</p></div>
+        </div>
+        <b className="aspect-label">{selectedSignal.aspect}</b>
+        <p>{selectedSignal.interpretation}</p>
+        <div className="signal-count">{String(selectedIndex + 1).padStart(2, '0')} / {String(area.signals.length).padStart(2, '0')}</div>
+      </div>
+    </div>
+  );
+}
+
+function HouseCompass({ area }: { area: ChartArea }) {
+  return (
+    <div className="house-figure">
+      <div className="house-ring" aria-label={`Highlighted houses for ${area.name}`}>
+        <div className="house-core"><span>HOUSES</span><strong>{area.houses.join(' · ')}</strong></div>
+        {Array.from({ length: 12 }, (_, index) => {
+          const house = index + 1;
+          const style = { '--house-index': index } as CSSProperties;
+          return (
+            <span key={house} style={style} className={area.houses.includes(house) ? 'active' : ''}>
+              {house}
+            </span>
+          );
+        })}
+      </div>
+      <div className="house-copy">
+        <span className="eyebrow">WHERE IT LANDS</span>
+        <h3>Houses {area.houses.join(', ')}</h3>
+        <p>The highlighted houses show where this pattern becomes concrete. They connect the psychological reading to lived areas of experience.</p>
+      </div>
+    </div>
+  );
+}
+
+function PatternFlow({ area }: { area: ChartArea }) {
+  return (
+    <div className="pattern-flow" aria-label={`${area.name} interpretation flow`}>
+      <article>
+        <span>01 · Pattern</span>
+        <p>{area.pattern}</p>
+      </article>
+      <i aria-hidden="true">→</i>
+      <article>
+        <span>02 · Friction</span>
+        <p>{area.friction}</p>
+      </article>
+      <i aria-hidden="true">→</i>
+      <article>
+        <span>03 · Integration</span>
+        <p>{area.integration}</p>
+      </article>
+    </div>
+  );
+}
+
+function DetailView({ area }: { area: ChartArea }) {
+  const relatedAreas = areaOrder.filter((key) => key !== area.key).slice(0, 3);
+
+  return (
+    <article id="top" className={`detail-page tone-${area.tone}`}>
+      <section className="detail-hero">
+        <aside className="detail-index">
+          <a href="#top" className="back-link">← Full atlas</a>
+          <span>{area.number} / 06</span>
+          <nav aria-label="Chart areas">
+            {areaOrder.map((key) => (
+              <a key={key} href={`#area/${key}`} aria-current={area.key === key ? 'page' : undefined}>
+                <span>{chartAreas[key].number}</span>{chartAreas[key].name}
+              </a>
+            ))}
+          </nav>
+        </aside>
+
+        <div className="detail-intro">
+          <p className="eyebrow">{area.tag}</p>
+          <h1>{area.title}</h1>
+          <p>{area.introduction}</p>
+          <button
+            type="button"
+            className="text-link"
+            onClick={() => document.getElementById('evidence')?.scrollIntoView({ behavior: 'auto' })}
+          >
+            Explore the chart evidence ↓
+          </button>
+        </div>
+
+        <div className="detail-marker" aria-hidden="true">
+          <span>{area.number}</span>
+          <i />
+          <b>{area.name}</b>
+        </div>
       </section>
 
-      <section id="self" className="portrait-section">
-        <div className="section-index">
-          <span>04</span>
-          <p>Integrated portrait</p>
+      <section id="evidence" className="evidence-section">
+        <div className="section-heading compact">
+          <span>Interactive evidence map</span>
+          <h2>Select a signal. Read what it changes.</h2>
+          <p>Each node is a placement or aspect used in this interpretation.</p>
         </div>
-        <div className="portrait-heading">
-          <h2>Competent exterior. <span>Private fire.</span></h2>
-          <p>The chart becomes most useful when its individual placements resolve into one person rather than a list of traits.</p>
-        </div>
-        <div className="portrait-grid">
-          <article>
-            <span>WHAT PEOPLE MEET</span>
-            <h3>Discernment in motion.</h3>
-            <p>Virgo rising with the Sun in the 1st presents as observant, capable, and improvement-oriented. Seth tends to enter a situation by understanding it, locating the friction, and making it work better.</p>
-          </article>
-          <article>
-            <span>WHAT STAYS PRIVATE</span>
-            <h3>A stronger point of view than first appears.</h3>
-            <p>Mercury in Leo in the 12th develops ideas away from the room. Expression becomes bold once the thinking is ready, but the creative process itself needs privacy and control over timing.</p>
-          </article>
-          <article>
-            <span>WHAT CREATES ENERGY</span>
-            <h3>Novelty inside a durable structure.</h3>
-            <p>The Gemini Moon and Uranian tension need variety, discovery, and independent people. Venus in Libra and Mars in Capricorn still want quality, consistency, and something worth building.</p>
-          </article>
-          <article>
-            <span>WHAT MAKES HIM EFFECTIVE</span>
-            <h3>Making complexity usable.</h3>
-            <p>Sun trine Neptune and sextile Pluto combine sensitivity with depth. The signature is strongest when intuitive pattern recognition becomes a clear decision, system, story, or strategy.</p>
-          </article>
-        </div>
-        <p className="portrait-close">At his best, Seth is precise without becoming rigid, intense without becoming controlling, and relational without losing his independent center.</p>
+        <SignalMap area={area} />
       </section>
 
+      <section className="reading-section">
+        <div className="section-heading compact">
+          <span>The full reading</span>
+          <h2>Pattern, pressure, response.</h2>
+        </div>
+        <PatternFlow area={area} />
+      </section>
+
+      <section className="house-section">
+        <HouseCompass area={area} />
+      </section>
+
+      <section className="reflection-section">
+        <div className="reflection-column questions">
+          <span className="eyebrow">QUESTIONS WORTH ASKING</span>
+          {area.questions.map((question, index) => (
+            <div key={question}><b>0{index + 1}</b><p>{question}</p></div>
+          ))}
+        </div>
+        <div className="reflection-column practices">
+          <span className="eyebrow">WAYS TO WORK WITH IT</span>
+          {area.practices.map((practice, index) => (
+            <div key={practice.title}>
+              <b>0{index + 1}</b>
+              <h3>{practice.title}</h3>
+              <p>{practice.copy}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="related-section">
+        <span className="eyebrow">CONTINUE THROUGH THE CHART</span>
+        <div>
+          {relatedAreas.map((key) => {
+            const related = chartAreas[key];
+            return <a key={key} href={`#area/${key}`}><span>{related.number}</span><b>{related.name}</b><small>{related.homeNote}</small></a>;
+          })}
+        </div>
+      </section>
+    </article>
+  );
+}
+
+export default function Home() {
+  const [activeKey, setActiveKey] = useState<AreaKey | null>(null);
+
+  useEffect(() => {
+    const syncRoute = () => {
+      setActiveKey(areaFromHash());
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    };
+    syncRoute();
+    window.addEventListener('hashchange', syncRoute);
+    return () => window.removeEventListener('hashchange', syncRoute);
+  }, []);
+
+  const activeArea = activeKey ? chartAreas[activeKey] : null;
+
+  return (
+    <main>
+      <SiteHeader activeArea={activeArea} />
+      <div className="route-view" key={activeArea?.key ?? 'home'}>
+        {activeArea ? <DetailView area={activeArea} /> : <HomeAtlas />}
+      </div>
       <footer>
-        <p>SYMBOLIC READING · NOT A CAUSAL OR SCIENTIFIC CLAIM</p>
-        <a href="#top">Back to top ↑</a>
+        <p>SYMBOLIC INTERPRETATION · NOT A CAUSAL OR SCIENTIFIC CLAIM</p>
+        <a href="#top">Back to atlas ↑</a>
       </footer>
     </main>
   );
